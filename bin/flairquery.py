@@ -2,17 +2,17 @@
 
 import praw
 from argparse import ArgumentParser
+from bg3po_oauth import login
 
 
 if __name__ == "__main__":
-    r = praw.Reddit('flair query tool by /u/phil_s_stein')
-    r.login(disable_warning=True)
 
     ap = ArgumentParser()
     ap.add_argument('-f', '--flair', help='Find users with the given flair')
     ap.add_argument('-s', '--subreddit', help='Search in given subreddit')
     args = ap.parse_args()
 
+    r = login()
     sub = 'boardgames' if not args.subreddit else args.subreddit
 
     if args.flair:

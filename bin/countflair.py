@@ -1,8 +1,8 @@
 import praw
+from bg3po_oauth import login
 
 subname = 'boardgames'
-reddit = praw.Reddit(u'flair counter script - /u/phil_s_stein')
-reddit.login()  # use ambient praw.ini or stdin/getpass
+reddit = login()
 subreddit = reddit.get_subreddit(subname)
 
 flairs = {}
