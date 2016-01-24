@@ -1,3 +1,0 @@
-sys:1: ResourceWarning: unclosed <ssl.SSLSocket fd=5, family=AddressFamily.AF_INET, type=2049, proto=6, laddr=('192.81.218.89', 34521), raddr=('198.41.208.140', 443)>
-/usr/lib/python3.4/importlib/_bootstrap.py:2127: ImportWarning: sys.meta_path is empty
-sys:1: ResourceWarning: unclosed <ssl.SSLSocket fd=4, family=AddressFamily.AF_INET, type=2049, proto=6, laddr=('192.81.218.89', 52078), raddr=('198.41.209.137', 443)>
