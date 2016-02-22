@@ -9,7 +9,7 @@ import json
 from datetime import datetime
 from collections import defaultdict
 from datetime import date, timedelta
-from bg3po_auth import login
+from bg3po_oauth import login
 
 log = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ def dataToWiki(jsonstr, deltas, subreddit):
     # sample line:
     # |180|[Clue](http://boardgamegeek.com/boardgame/1294)|5.42|**▲1**|205
     ret = ['|Rank|Game|Rating|+/-|Raters']
-    ret.append('|--:|:-----------|---------------:|--:|-----:|')
+    ret.append('|--:|:-----------|---------------:|--:|-----:')
     for rank, g in enumerate(data['game_ratings'], 1):
         ret.append('|{}|[{}](http://boardgamegeek.com/boardgame/{})|{:.2f}|{}|{}'.format(
             rank, g[0], data['game_ids'][g[0]]['bggid'], g[2], deltas[g[0]], g[1]))
@@ -45,7 +45,7 @@ def dataToWiki(jsonstr, deltas, subreddit):
     ret.append('\n')
     ret.append('\nA few stats on ratings for this month:')
     ret.append('\n * Total Raters (guild members with collections): {}'.format(data['num_raters']))
-    ret.append('\n * Rating Threshold (%5 of raters): {}'.format(data['rating_threshold']))
+    ret.append('\n * Rating Threshold (5% of raters): {}'.format(data['rating_threshold']))
     ret.append('\n * Total Ratings: {}'.format(data['total_ratings']))
     ret.append('\n[Previous Month\'s '
                'Rankings](http://reddit.com/r/{}/w/top_10/full_list_prev).'.format(subreddit))
@@ -53,6 +53,7 @@ def dataToWiki(jsonstr, deltas, subreddit):
     ret.append('\nPosted at {}'.format(datetime.ctime(datetime.now())))
 
     top10 = ret[:12]
+    top10 = [s[:s.rfind('|')] for s in top10]   # trim the last column for the sidebar...
     top10.append('| | |\n| | [more...](/r/{}/w/top_10/full_list) |\n'.format(subreddit))
     top10.append('Posted at: {}'.format(datetime.ctime(datetime.now())))
 
@@ -104,19 +105,19 @@ What the [rankings mean according to BGG](http://boardgamegeek.com/wiki/page/rat
         for game in sorted(stats['gone_games'], key=lambda x: x[1]):
             post.append('|{}|{}|'.format(game[0], game[1]))
 
-    movers = sorted([d for d in stats['deltas'].values()], key=lambda x: x['Movement'], reverse=True)
+    movers = sorted([d for d in stats['deltas'].values()], key=lambda x: x['Rating Movement'], reverse=True)
     gainers = movers[:10]
     decliners = movers[::-1][:10]   # extended slice :: gives reversed list
 
     for title, movelist in [('Gainers', gainers), ('Decliners', decliners)]:
-        if movelist[0]['Movement'] != 0:
+        if movelist[0]['Rating Movement'] != 0:
             post.append('\n**Top {}:**'.format(title))
-            post.append('\n|Name|Movement|New Rank|Old Rank|New Rating|Old Rating|')
+            post.append('\n|Name|Rating Movement|New Rank|Old Rank|New Rating|Old Rating|')
             post.append('|'.join(['----' for _ in range(len(movelist[0].keys()))]))
             for game in movelist:
-                if game['Movement'] == 0:
+                if game['Rating Movement'] == 0:
                     break
-                post.append('{Name}|{Movement}|{New Rank}|{Old Rank}|{New Rating:.2f}|{Old Rating:.2f}'.format(**game))
+                post.append('{Name}|{Rating Movement:.2f}|{New Rank}|{Old Rank}|{New Rating:.2f}|{Old Rating:.2f}'.format(**game))
 
     post = header + '\n'.join(post) + footer
     prev_month = (date.today() - timedelta(365/12)).strftime('%B')
@@ -147,12 +148,13 @@ def get_deltas_and_stats(prev_json, cur_json):
         stats['deltas'][game_name]['New Rank'] = cur_rank
         stats['deltas'][game_name]['New Rating'] = float(game_rating[2])
         stats['deltas'][game_name]['Old Rating'] = None  # filled below
-        stats['deltas'][game_name]['Movement'] = 0
+        stats['deltas'][game_name]['Rating Movement'] = 0
+        stats['deltas'][game_name]['Rank Movement'] = 0
         if not prev_rank:
             delta_strs[game_name] = '~~\N{BLACK STAR}~~'
         else:
             change = prev_rank - cur_rank
-            stats['deltas'][game_name]['Movement'] = change
+            stats['deltas'][game_name]['Rank Movement'] = change
             if change == 0:  # no change
                 delta_strs[game_name] = '---'
             elif change > 0:
@@ -168,9 +170,15 @@ def get_deltas_and_stats(prev_json, cur_json):
             stats['deltas'][game_name]['Old Rank'] = rank
             stats['deltas'][game_name]['New Rank'] = None
             stats['deltas'][game_name]['New Rating'] = None
-            stats['deltas'][game_name]['Movement'] = 0
+            stats['deltas'][game_name]['Rating Movement'] = 0
+            stats['deltas'][game_name]['Rank Movement'] = 0
 
-        stats['deltas'][game_name]['Old Rating'] = float(game_rating[2])
+        old_rating = float(game_rating[2])
+        new_rating = stats['deltas'][game_name]['New Rating'];
+
+        stats['deltas'][game_name]['Old Rating'] = old_rating
+        if new_rating:
+            stats['deltas'][game_name]['Rating Movement'] = new_rating - old_rating
     
     # figure some basic stats. new games, gone games, etc.
     prev_set = set([g[0] for g in prev['game_ratings']])
