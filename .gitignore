@@ -2,4 +2,5 @@
 *.log
 bg3po_oauth.py
 __pycache__
+etc/*.json
 
