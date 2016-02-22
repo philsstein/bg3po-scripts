@@ -23,6 +23,6 @@ if __name__ == "__main__":
 
         users.sort()
 
-        print('Users with {} flair:')
+        print('Users with {} flair:'.format(args.flair))
         for u in users:
             print('* /u/{}'.format(u))

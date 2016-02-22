@@ -9,7 +9,7 @@ import json
 from datetime import datetime
 from collections import defaultdict
 from datetime import date, timedelta
-from bg3po_auth import login
+from bg3po_oauth import login
 
 log = logging.getLogger(__name__)
 
