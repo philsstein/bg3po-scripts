@@ -1,6 +1,7 @@
 *.pyc
 *.log
+*.un~
 bg3po_oauth.py
 __pycache__
 etc/*.json
-
+bgg_cache
