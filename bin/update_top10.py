@@ -245,7 +245,7 @@ if __name__ == '__main__':
 
     # now substitute new top 10 in place in the sidebar
     # we use the put-in-place delimiters to find the top 10.
-    search_for = '\[//]: # \(TTS\)\n(.+)\s*\[//]: # \(TTE\)\n'
+    search_for = '\[//]: # \(TTS\)\r*\n(.+)\s*\[//]: # \(TTE\)\r*\n'
   
     # do the deed, update the sidebar
     top10 = '[//]: # (TTS)\n' + '\n'.join(top10) + '\n[//]: # (TTE)\n'
