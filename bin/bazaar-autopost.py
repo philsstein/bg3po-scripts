@@ -5,7 +5,7 @@ import re
 from datetime import datetime
 
 SUBREDDIT = "boardgames"
-POST_BODY = "/home/bg3po/src/etc/bazaar_post_body.red"
+POST_BODY = "/home/bg3po/bg3po-scripts/etc/bazaar_post_body.red"
 
 
 def get_month():
