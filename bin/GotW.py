@@ -125,7 +125,7 @@ def updateGotWWiki(page, gotws, post_id):
         return None
 
     # load up the archive, add this week's gotw, sort by date, subs in the new list.
-    games = re.findall(u'(\d{4}-\d{2}-\d{2}) : \[([^\]]+)\]\(/(\w+)\)', new_wiki_page)
+    games = re.findall(u'(\d{4}-\d{2}-\d{2}) \| \[([^\]]+)\]\(/(\w+)\)', new_wiki_page)
     if not games:
         log.critical(u'Unable to find archived GOTW links in wiki page')
         return None
@@ -144,7 +144,9 @@ def updateGotWWiki(page, gotws, post_id):
         return g[1]
 
     games = sorted(games, key=sortGames)
-    new_arch_list = u''.join([u' * {} : [{}](/{})\n'.format(g[0], g[1], g[2]) for g in games])
+    new_arch_list = u'Date | Title\n'
+    new_arch_list += ':---- | :----\n'
+    new_arch_list += u''.join([u'{} | [{}](/{})\n'.format(g[0], g[1], g[2]) for g in games])
     new_arch = u'[//]: (GOTWS)\n' + new_arch_list + u'[//]: (GOTWE)\n'
     search_for = u'\[//]:\s\(GOTWS\)\s.+\[//]:\s\(GOTWE\)\s'
     new_wiki = re.sub(search_for, new_arch, new_wiki_page, flags=re.DOTALL)
