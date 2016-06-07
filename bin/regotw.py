@@ -23,14 +23,19 @@ if __name__ == '__main__':
     
     gotw_page = reddit.get_wiki_page(subreddit=subreddit, page=wiki_page)
     gotw_text = html.unescape(gotw_page.content_md)
-    matches = re.findall(u'(\d{4}-\d{2}-\d{2}) : \[([^\]]+)\]\(/(\w+)\)', gotw_text)
+    log.debug('Found wiki text:\n{}'.format(gotw_text))
+
+    matches = re.findall(u'(\d{4}-\d{2}-\d{2}) \| \[([^\]]+)\]\(/(\w+)\)', gotw_text)
     if not matches:
         log.critical(u'Unable to find GOTW links in wiki page {}'.format(wiki_page))
         exit(1)
 
+    log.debug('Found {} games'.format(len(matches)))
+
     # games are [ ['YYYY-MM-DD', 'game name', 'gotw url'], ... ]
     # make first data point into python date class instance.
     games = [list(x) for x in matches]
+    log.debug('first five games found: {}'.format(games[0:4]))
     for game in games:
         y, m, d = game[0].split('-')
         try:
