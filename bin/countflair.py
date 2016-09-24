@@ -25,7 +25,7 @@ name_sorted_flairs = sorted(flairs.items(), key=lambda x: x[0])
 for l in [count_sorted_flairs, name_sorted_flairs]:
     print('--------------------------')
     for name, count in l:
-        print '* {}: {}'.format(name, count)
+        print('* {}: {}'.format(name, count))
 
 print('--------------------------')
 # output markup for reddit
